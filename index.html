@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Inflaterate – Live Currency Exchange</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Live exchange rates with trends, history, and clear explanations." />
+
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>Inflaterate</h1>
+    <p class="tagline">Live exchange rates with inflation-aware context</p>
+  </header>
+
+  <main>
+    <section class="converter">
+      <div class="row">
+        <input type="number" id="amount" value="1" min="0" step="any" />
+        <select id="fromCurrency"></select>
+        <button id="swap">⇄</button>
+        <select id="toCurrency"></select>
+      </div>
+
+      <div class="result">
+        <span id="resultValue">—</span>
+      </div>
+
+      <div class="meta">
+        <span id="lastUpdated"></span>
+        <button id="favoriteBtn">☆ Favorite</button>
+      </div>
+    </section>
+
+    <section class="extras">
+      <details open>
+        <summary>📈 Trend</summary>
+        <canvas id="rateChart"></canvas>
+        <div class="range-buttons">
+          <button data-range="7">7D</button>
+          <button data-range="30">30D</button>
+          <button data-range="365">1Y</button>
+        </div>
+      </details>
+
+      <details>
+        <summary>🧠 Why did this move?</summary>
+        <p id="explanation">
+          Exchange rates fluctuate due to inflation differences, interest rates,
+          economic data, and market sentiment. Higher inflation generally weakens
+          a currency over time.
+        </p>
+      </details>
+
+      <details>
+        <summary>⭐ Favorites</summary>
+        <ul id="favoritesList"></ul>
+      </details>
+
+      <details>
+        <summary>🕘 Recent Conversions</summary>
+        <ul id="historyList"></ul>
+      </details>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      Rates provided for informational purposes only.
+      Mid-market rates shown, fees not included.
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

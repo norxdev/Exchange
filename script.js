@@ -6,11 +6,32 @@ const updatedEl = document.getElementById("lastUpdated");
 const favoriteBtn = document.getElementById("favoriteBtn");
 const favoritesList = document.getElementById("favoritesList");
 const historyList = document.getElementById("historyList");
+const explanationEl = document.getElementById("explanation");
 
 let chart;
 let currentRange = 30;
+let previousRate = null;
 
 const API_BASE = "https://api.frankfurter.app";
+
+// Mini rule-based explanations
+const explanations = {
+  up: [
+    "Currency strengthened due to positive economic data.",
+    "Higher interest rates boosted investor confidence.",
+    "Strong trade balance lifted currency value."
+  ],
+  down: [
+    "Currency weakened due to slower growth expectations.",
+    "Political instability lowered market confidence.",
+    "Inflation fears reduced currency demand."
+  ],
+  stable: [
+    "Currency stayed stable, showing low market volatility.",
+    "No major economic events affected this pair today.",
+    "Markets saw balanced supply and demand."
+  ]
+};
 
 async function loadCurrencies() {
   const res = await fetch(`${API_BASE}/currencies`);
@@ -39,8 +60,26 @@ async function convert() {
   resultEl.textContent = `${rate.toFixed(4)} ${to}`;
   updatedEl.textContent = `Updated: ${data.date}`;
 
+  renderMovementExplanation(rate);
+  previousRate = rate;
+
   saveHistory(amount, from, to, rate);
   loadChart();
+}
+
+function renderMovementExplanation(current) {
+  if (previousRate === null) {
+    explanationEl.textContent = "Check back tomorrow to see rate changes!";
+    return;
+  }
+
+  let type;
+  if (current > previousRate) type = "up";
+  else if (current < previousRate) type = "down";
+  else type = "stable";
+
+  const msgs = explanations[type];
+  explanationEl.textContent = msgs[Math.floor(Math.random() * msgs.length)];
 }
 
 function saveHistory(amount, from, to, rate) {
@@ -107,6 +146,10 @@ async function loadChart() {
   const labels = Object.keys(data.rates);
   const values = labels.map(d => data.rates[d][to]);
 
+  // Determine color by movement
+  const color = values[values.length-1] > values[0] ? "green" :
+                values[values.length-1] < values[0] ? "red" : "gray";
+
   if (chart) chart.destroy();
 
   chart = new Chart(document.getElementById("rateChart"), {
@@ -116,13 +159,23 @@ async function loadChart() {
       datasets: [{
         label: `${from}/${to}`,
         data: values,
-        tension: 0.3
+        borderColor: color,
+        backgroundColor: "rgba(0,0,0,0)",
+        tension: 0.3,
+        pointHoverRadius: 6
       }]
     },
     options: {
       responsive: true,
-      scales: {
-        x: { display: false }
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const idx = context.dataIndex;
+              return `Rate: ${context.dataset.data[idx].toFixed(4)} — ${labels[idx]}`;
+            }
+          }
+        }
       }
     }
   });
